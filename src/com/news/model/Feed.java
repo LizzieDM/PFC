@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public class Feed {
-	final int id;
+	final String id;
 	 final String title;
 	  final String link;
 	  final String description;
@@ -16,9 +16,8 @@ public class Feed {
 
 	  final List<FeedMessage> entries = new ArrayList<FeedMessage>();
 
-	  public Feed(String title, String link, String description, String language,
-	      String copyright, String pubDate, int id) {
-		  this.id = id;
+	  public Feed(String title, String link, String description, String language, String copyright, String pubDate, String string) {
+		  this.id = string;
 	    this.title = title;
 	    this.link = link;
 	    this.description = description;
@@ -27,7 +26,9 @@ public class Feed {
 	    this.pubDate = pubDate;
 	  }
 
-	  public List<FeedMessage> getMessages() {
+	  
+
+	public List<FeedMessage> getMessages() {
 	    return entries;
 	  }
 
@@ -35,7 +36,7 @@ public class Feed {
 	    return title;
 	  }
 	  
-	  public int getId() {
+	  public String getId() {
 			return id;
 		}
 

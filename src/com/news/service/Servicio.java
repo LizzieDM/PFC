@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.news.database.DBconnection;
 import com.news.database.ReadService;
+import com.news.model.Comparacion;
 import com.news.model.Feed;
 
 import de.linguatools.disco.DISCO;
@@ -49,6 +50,124 @@ public class Servicio {
 		@Produces({ MediaType.TEXT_XML })
 		public String getFeeds() throws IOException, InstantiationException,
 				IllegalAccessException, InterruptedException, SQLException {
+			
+			fileTxt = new FileHandler("C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+			formatterTxt = new SimpleFormatter();
+			fileTxt.setFormatter(formatterTxt);
+			log.addHandler(fileTxt);
+			String archivo_prueba = null;
+//			File file = new File(
+//					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\articles.rss");
+//			if (!file.exists()) {
+//				file.createNewFile();
+//			}
+			
+			/* 1_ Leer desde el rss las noticias dependiendo de los periodicos que haya en la BBDD 
+			 * Tabla: NewsPaper_info
+			 */
+			
+//			ReadService read = new ReadService();
+//			read.readBdInsert();
+//			System.out.println("Insertados a BBDD");
+			
+			/* 1_ Leer desde BBDD las noticias de los periodicos, guardando en Listas  
+			 * Tabla: News_info
+			 */
+			DBconnection conexionDB = new DBconnection();
+			try {
+				conexionDB.test_connection();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			// Diario de avisos
+			List<Feed> listNews2 = conexionDB.getNews(2);
+			//El Día 
+			List<Feed> listNews1 = conexionDB.getNews(1);
+			
+			System.out.println("[DONE] Leidos feeds desde bbdd - Leemos palabras vacías");
+			conjuntoVacias = new ArrayList<String>();
+			conjuntoVacias = leerConjuntoVacias();
+			System.out.println("[DONE] Leido el fichero de vacías");
+			
+			
+			/* 1_ Para cada news en la lista1 hacer para cada news de la lista 2 comparacion de 
+			 * Levenstein (No semantica o semantica). 
+			 * 2_ Guardar en BBDD la comparación junto con los id´s de las noticias.
+			 * Tabla: News_info
+			 */
+			
+				for(int i = 0; i < listNews1.size(); i++){
+					for (int j = 0; j < listNews2.size(); j++){
+						//String texto1 =limpiarTextoVacias("No cabe la restitución de un vehículo afectado por el fraude de emisiones al concesionario, ni exigir la devolución del precio de compra, según el Tribunal Regional Bochum, estado alemán de Renania del Norte-Westfalia.");
+						//String texto2 =limpiarTextoVacias("Entre los motivos del fallo, al que ha tenido acceso EL PAÍS, está que el comprador no demuestra tener una conciencia ecológica especial y que la reparación del vehículo que tiene el software malitencionado puede hacerse “en términos razonables”.");
+						//String texto1 =limpiarTextoVacias("El terremoto acabó con todo a su paso");
+						//String texto2 =limpiarTextoVacias("El temblor destrozó todo a su paso");
+						
+						String texto1 =limpiarTextoVacias(listNews1.get(i).getDescription());
+						String texto2 =limpiarTextoVacias(listNews2.get(j).getDescription());
+						System.out.println("Texto1 sin vacias " + texto1);		
+						System.out.println("Texto2 sin vacias " + texto2);		
+						
+						String[] str1 = texto1.split(" ");
+						String[] str2 = texto2.split(" ");
+						ArrayList<String> strLimpio1 = new ArrayList<>();
+						ArrayList<String> strLimpio2 = new ArrayList<>();
+						
+						strLimpio1 = limpiarBlancos(str1);
+						strLimpio2 = limpiarBlancos(str2);
+						
+						float valor = computeSoftLevenshteinDistance(strLimpio1, strLimpio2);
+						conexionDB.insert_comparacion(listNews1.get(i).getId(), listNews2.get(j).getId(), Float.toString(valor));
+						System.out.println("[DONE] Insertada comparacion");
+						System.out.println("Valor de la comparacion Soft " + valor);						
+						System.out.println("Valor de la comparacion Soft " + computeLevenshteinDistance(texto1, texto2));
+						
+					}
+					
+				}
+			
+			/* 1_ Construimos el XML para devolver el resultado de las similares 
+			 * 
+			 */
+			String archivo = null;
+			archivo = "<?xml version=\"1.0\" encoding=\"utf-8\"?><feeds>";
+			List<Comparacion> comparaciones = conexionDB.getComparaciones();
+			
+			for (int j = 0; j < comparaciones.size(); j++) {
+				Feed noticia1 =conexionDB.getOneNew(comparaciones.get(j).getIdNoticia1());
+				Feed noticia2 =conexionDB.getOneNew(comparaciones.get(j).getIdNoticia2());
+				archivo += "<similar>";
+				archivo += "<item><title>" + noticia1.getTitle()
+						+ "</title>";
+				archivo += "<link>" + noticia1.getLink() + "</link>";
+				archivo += "<description>" + noticia1.getDescription()
+						+ "</description>";
+				archivo += "<encoded>" + noticia1.getLanguage()
+						+ "</encoded>";
+				archivo += "<pubDate>" + noticia1.getPubDate()
+						+ "</pubDate></item>";
+				archivo += "<item><title>" + noticia2.getTitle()
+						+ "</title>";
+				archivo += "<link>" + noticia2.getLink() + "</link>";
+				archivo += "<description>" + noticia2.getDescription()
+						+ "</description>";
+				archivo += "<encoded>" + noticia2.getLanguage()
+						+ "</encoded>";
+				archivo += "<pubDate>" + noticia2.getPubDate()
+						+ "</pubDate></item>";
+				archivo += "<valorSimilitud>"+ comparaciones.get(j).getValor() +"</valorSimilitud></similar>";
+				
+			}
+			archivo += "</feeds>";
+			
+			return archivo;
+		}
+			
+//			@GET
+//			@Produces({ MediaType.TEXT_XML })
+			public String hacerComparacion() throws IOException, InstantiationException,
+					IllegalAccessException, InterruptedException, SQLException {
+			
 
 //			fileTxt = new FileHandler(
 //					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
@@ -166,10 +285,10 @@ public class Servicio {
 		}
 		
 		private String limpiarTextoVacias(String description) {
-			 System.out.println("Limpieza de " + description);
+			 //System.out.println("Limpieza de " + description);
 			for (int i = 0; i < conjuntoVacias.size(); i++){
 				description = description.replaceAll("\\b" + conjuntoVacias.get(i) + "\\b", "");
-				System.out.println("Descripcion: " + description);
+				//System.out.println("Descripcion: " + description);
 			}
 			
 			return description;
@@ -193,7 +312,7 @@ public class Servicio {
 
 			try {
 				while ((sCurrentLine = br.readLine()) != null) {
-					System.out.println(sCurrentLine);
+					//System.out.println(sCurrentLine);
 					vacias.add(sCurrentLine);
 				}
 			} catch (IOException e) {
@@ -294,7 +413,7 @@ public class Servicio {
 		        //Ordenamos tabla 
 		        for(int i=0;i< T3.length;i++){
 		        	if(T1[i] != null && T2[i] != null){
-		        		System.out.println("Indice se visitadosA :"+ findIndex(strA, T1[i]) + "Indices de visitadosB:" + findIndex(strB, T2[i]));
+		        		//System.out.println("Indice se visitadosA :"+ findIndex(strA, T1[i]) + "Indices de visitadosB:" + findIndex(strB, T2[i]));
 		        		if((visitadosA[findIndex(strA, T1[i])] == 1 ) && (visitadosB[findIndex(strB, T2[i])] == 1 )){
 		        			visitadosA[findIndex(strA, T1[i])] = 0;
 		        			visitadosB[findIndex(strB, T2[i])] = 1;
@@ -320,7 +439,8 @@ public class Servicio {
 		            }
 		        }
 		        
-		         float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
+		        //float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
+		         float resultado = distance[strA.size()-1][strB.size() -1];
 		        return resultado;
 		        
 		    }

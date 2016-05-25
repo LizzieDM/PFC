@@ -40,7 +40,7 @@ public class RSSFeedParser {
 		try {
 			boolean isFeedHeader = true;
 			// Set header values intial to the empty string
-			int id = -1;
+			String id = Integer.toString(-1);
 			String description = "";
 			String title = "";
 			String link = "";

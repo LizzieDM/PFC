@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import com.news.model.Comparacion;
 import com.news.model.Feed;
 import com.news.model.NewsPaper;
 import com.news.service.Servicio;
@@ -161,6 +162,132 @@ public class DBconnection {
 	    
 	}
 	
+	public void insert_comparacion(String string, String string2, String string3){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+		  Connection conn = null;
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO news_comparacion (id_noticia1,id_noticia2,comparacion) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + string3 + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
+	public List<Comparacion> getComparaciones(){
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_comparacion order by comparacion ASC;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Comparacion comparacion = new Comparacion(result.getString(1),result.getString(2),result.getString(3));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+			
+				listaComparaciones.add(comparacion);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listaComparaciones;
+	}
+	
+	public Feed getOneNew(String idNoticia){
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		Feed Noticia = null;
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_info where id="+ idNoticia +";");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Noticia = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+				System.out.print(": ");
+				System.out.println(result.getString(4));
+				System.out.print(": ");
+				System.out.println(result.getString(5));
+				System.out.print(": ");
+				System.out.println(result.getString(6));
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return Noticia;
+	}
+	
 	public  List<Feed> getNews(int periodico) {
 		Connection conn = null;
 		PreparedStatement query = null;
@@ -173,7 +300,7 @@ public class DBconnection {
 			query = conn.prepareStatement(sql);
 			result = query.executeQuery();
 			while (result.next()) {
-				Feed new_notice = new Feed(result.getString(3),result.getString(4),result.getString(2), null, null, result.getString(5), result.getInt(1));
+				Feed new_notice = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1));
 				System.out.print(result.getInt(1));
 				System.out.print(": ");
 				System.out.println(result.getString(2));
