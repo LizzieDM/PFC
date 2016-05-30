@@ -13,5 +13,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/Webservice/PFC/WebContent/WEB-INF/lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/Webservice/PFC/WebContent/WEB-INF/lib/commons-lang3-3.4-javadoc.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

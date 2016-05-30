@@ -6,24 +6,29 @@ import java.util.List;
 
 
 public class Feed {
-	final String id;
-	 final String title;
-	  final String link;
-	  final String description;
-	  final String language;
-	  final String copyright;
-	  final String pubDate;
+	 String id;
+	  String title;
+	   String link;
+	   String description;
+	   String language;
+	   String copyright;
+	   String pubDate;
+	   String tagsEntities;
+	   String periodico;
 
 	  final List<FeedMessage> entries = new ArrayList<FeedMessage>();
 
-	  public Feed(String title, String link, String description, String language, String copyright, String pubDate, String string) {
-		  this.id = string;
+	   
+	  public Feed(String title, String link, String description, String language, String copyright, String pubDate, String idnoticia, String tags, String periodico) {
+		  this.id = idnoticia;
 	    this.title = title;
 	    this.link = link;
 	    this.description = description;
 	    this.language = language;
 	    this.copyright = copyright;
 	    this.pubDate = pubDate;
+	    this.tagsEntities= tags;
+	    this.periodico = periodico;
 	  }
 
 	  
@@ -59,7 +64,15 @@ public class Feed {
 	  public String getPubDate() {
 	    return pubDate;
 	  }
+	  
+	  public String getTags() {
+		    return tagsEntities;
+		  }
 
+	  public String getIdPeriodico() {
+		    return periodico;
+		  }
+	  
 	  @Override
 	  public String toString() {
 	    return "Feed [copyright=" + copyright + ", description=" + description

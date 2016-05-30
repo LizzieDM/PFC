@@ -439,8 +439,8 @@ public class Servicio {
 		            }
 		        }
 		        
-		        //float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
-		         float resultado = distance[strA.size()-1][strB.size() -1];
+		        float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
+		        // float resultado = distance[strA.size()-1][strB.size() -1];
 		        return resultado;
 		        
 		    }

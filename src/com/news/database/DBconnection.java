@@ -122,9 +122,51 @@ public class DBconnection {
 				lgr.log(Level.WARNING, ex.getMessage(), ex);
 			}
 		}
-		System.out.println("Table created successfully");
+		System.out.println("Table newspaper readed successfully");
 		return newsPapers;
 	}
+	
+	public  String getNewsPapersDescription(String idNewsPaper) {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		NewsPaper newsPaper = new NewsPaper();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from newspaper_info where id='"+ idNewsPaper +"';");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				
+				newsPaper.setId(result.getInt(1));
+				newsPaper.setUrl(result.getString(2));
+				newsPaper.setName(result.getString(3));
+				
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("Table newspaper readed successfully");
+		return newsPaper.getName();
+	}
+	
 	
 	public void insert_feed(String description, String tittle, String author, String pub_date, int id_newspaper ) throws SecurityException, IOException{
 		
@@ -182,7 +224,7 @@ public class DBconnection {
 	         System.out.println("Opened database successfully");
 
 	         stmt = conn.createStatement();
-	         String sql = "INSERT INTO news_comparacion (id_noticia1,id_noticia2,comparacion) "
+	         String sql = "INSERT INTO news_comparacion (idnoticia1,idnoticia2,comparacion) "
 	               + "VALUES ('" + string + "','" + string2 + "','" + string3 + "');";
 	         
 	         stmt.executeUpdate(sql);
@@ -194,6 +236,201 @@ public class DBconnection {
 	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 	         System.exit(0);
 	      }
+	}
+	
+	public void insert_comparacion_titulos(String string, String string2, String string3){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+		  Connection conn = null;
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO news_comparacion_titulos (idnoticia1,idnoticia2,comparacion) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + string3 + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
+	public void insert_comparacion_entidades(String string, String string2, String string3, String tagsEntidades){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+		  Connection conn = null;
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO news_comparacion_entidades (idnoticia1,idnoticia2,comparacion,tagsentidades) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + string3 + "','" + tagsEntidades + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
+	public boolean existComparison(String idNoticia1, String idNoticia2){
+		try{
+			Connection con = null;
+			con = getConnection();
+			PreparedStatement pstat = con.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+		 
+//	        pstat.set(parameterIndex, x)(1, idNoticia1);
+//	        pstat.setString(2, idNoticia2);
+	        ResultSet rs = pstat.executeQuery();
+	        int rowCount=0;
+
+	        while(rs.next())
+	        {
+	            rowCount++;
+	            int typeID = rs.getInt(1);
+	        }
+	       
+	        	Connection con2 = null;
+	        	con2 = getConnection();
+				PreparedStatement pstat2 = con2.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+			 
+//		        pstat2.setString(1, idNoticia2);
+//		        pstat2.setString(2, idNoticia1);
+		        ResultSet rs2 = pstat2.executeQuery();
+		        int rowCount2=0;
+
+		        while(rs2.next())
+		        {
+		            rowCount2++;
+		            int typeID = rs2.getInt(1);
+		        }
+		
+		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	return false;
+		        }else{
+		        	return true;
+		        }
+		
+		}catch(Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+			return true;
+		}
+	}
+	
+	public boolean existComparisonDescripcion(String idNoticia1, String idNoticia2){
+		try{
+			Connection con = null;
+			con = getConnection();
+			PreparedStatement pstat = con.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+		 
+	        ResultSet rs = pstat.executeQuery();
+	        int rowCount=0;
+
+	        while(rs.next())
+	        {
+	            rowCount++;
+	            int typeID = rs.getInt(1);
+	        }
+	       
+	        	Connection con2 = null;
+	        	con2 = getConnection();
+				PreparedStatement pstat2 = con2.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+			 
+		        ResultSet rs2 = pstat2.executeQuery();
+		        int rowCount2=0;
+
+		        while(rs2.next())
+		        {
+		            rowCount2++;
+		            int typeID = rs2.getInt(1);
+		        }
+		
+		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	return false;
+		        }else{
+		        	return true;
+		        }
+		
+		}catch(Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+			return true;
+		}
+	}
+	
+	public boolean existComparisonTitulos(String idNoticia1, String idNoticia2){
+		try{
+			Connection con = null;
+			con = getConnection();
+			PreparedStatement pstat = con.prepareStatement("Select idcomparacion from news_comparacion_titulos where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+		 
+	        ResultSet rs = pstat.executeQuery();
+	        int rowCount=0;
+
+	        while(rs.next())
+	        {
+	            rowCount++;
+	            int typeID = rs.getInt(1);
+	        }
+	       
+	        	Connection con2 = null;
+	        	con2 = getConnection();
+				PreparedStatement pstat2 = con2.prepareStatement("Select idcomparacion from news_comparacion_titulos where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+			 
+		        ResultSet rs2 = pstat2.executeQuery();
+		        int rowCount2=0;
+
+		        while(rs2.next())
+		        {
+		            rowCount2++;
+		            int typeID = rs2.getInt(1);
+		        }
+		
+		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	return false;
+		        }else{
+		        	return true;
+		        }
+		
+		}catch(Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+			return true;
+		}
 	}
 	
 	public List<Comparacion> getComparaciones(){
@@ -236,8 +473,176 @@ public class DBconnection {
 				lgr.log(Level.WARNING, ex.getMessage(), ex);
 			}
 		}
-		System.out.println("News read successfully");
+		System.out.println("Comparisons read successfully");
 		return listaComparaciones;
+	}
+	
+	public List<Comparacion> getComparacionesTitulos(){
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_comparacion_titulos order by comparacion ASC;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Comparacion comparacion = new Comparacion(result.getString(1),result.getString(2),result.getString(3));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+			
+				listaComparaciones.add(comparacion);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("Comparisons read successfully");
+		return listaComparaciones;
+	}
+	
+	public List<Comparacion> getComparacionesEntidades(String entidades){
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_comparacion_entidades where tagsentidades='"+ entidades + "'order by comparacion ASC;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Comparacion comparacion = new Comparacion(result.getString(2),result.getString(3),result.getString(5),result.getString(4));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+			
+				listaComparaciones.add(comparacion);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("Comparisons read successfully");
+		return listaComparaciones;
+	}
+
+	public List<String> getEntidades(){
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<String> listaEntidades = new ArrayList<String>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select distinct tagsentidades from news_comparacion_entidades;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				
+				System.out.print(result.getString(1));
+			
+				listaEntidades.add(result.getString(1));
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listaEntidades;
+	}
+	
+	public void UpdateTags(String idNoticia, String tags){
+		
+		
+		  Connection conn = null;
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         
+	         String sql = (" update news_info set tagsentidades='"+ tags +"'where id='"+ idNoticia +"';");
+	         
+	         stmt.executeUpdate(sql);
+	        
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+					
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News update successfully");
+		
 	}
 	
 	public Feed getOneNew(String idNoticia){
@@ -252,7 +657,7 @@ public class DBconnection {
 			query = conn.prepareStatement(sql);
 			result = query.executeQuery();
 			while (result.next()) {
-				Noticia = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1));
+				Noticia = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1), result.getString(9), result.getString(7));
 				System.out.print(result.getInt(1));
 				System.out.print(": ");
 				System.out.println(result.getString(2));
@@ -300,7 +705,7 @@ public class DBconnection {
 			query = conn.prepareStatement(sql);
 			result = query.executeQuery();
 			while (result.next()) {
-				Feed new_notice = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1));
+				Feed new_notice = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1),  result.getString(9), result.getString(7));
 				System.out.print(result.getInt(1));
 				System.out.print(": ");
 				System.out.println(result.getString(2));
@@ -336,6 +741,58 @@ public class DBconnection {
 		System.out.println("News read successfully");
 		return listNews;
 	}
+	
+	public  List<Feed> getAllNews() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Feed> listNews = new ArrayList<Feed>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_info;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Feed new_notice = new Feed(result.getString(3),result.getString(4),result.getString(2),"", result.getString(5),result.getString(6), result.getString(1), result.getString(9), result.getString(7));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+				System.out.print(": ");
+				System.out.println(result.getString(4));
+				System.out.print(": ");
+				System.out.println(result.getString(5));
+				System.out.print(": ");
+				System.out.println(result.getString(6));
+				System.out.print(": ");
+				System.out.println(result.getString(9));
+				listNews.add(new_notice);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+	
 	
 	private String parseQuotes(String texto){
 		return  texto.replaceAll("'", "''");	

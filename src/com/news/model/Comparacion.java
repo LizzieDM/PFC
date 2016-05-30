@@ -7,6 +7,7 @@ public class Comparacion {
 	String idNoticia1;
 	String idNoticia2;
 	String valor;
+	String tagsEntidades;
 	
 	 final List<Comparacion> comparaciones = new ArrayList<Comparacion>();
 
@@ -16,6 +17,13 @@ public class Comparacion {
 		this.valor = Valor;
 	  }
 
+	  public Comparacion(String idNoticia1, String idNoticia2, String Valor, String tagsEntidades) {
+			this.idNoticia1 = idNoticia1;
+			this.idNoticia2 = idNoticia2;
+			this.valor = Valor;
+			this.tagsEntidades= tagsEntidades;
+		  }
+	  
 	  public List<Comparacion> getMessages() {
 	    return comparaciones;
 	  }
@@ -39,6 +47,13 @@ public class Comparacion {
 	}
 	public void setValor(String valor) {
 		this.valor = valor;
+	}
+	
+	public String getTagsEntidades() {
+		return tagsEntidades;
+	}
+	public void setTagsEntidades(String tagsEntidades) {
+		this.tagsEntidades = tagsEntidades;
 	}
 	
 
