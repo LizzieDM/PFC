@@ -1,6 +1,7 @@
 package com.news.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.news.database.DBconnection;
+import com.news.database.ReadService;
 import com.news.model.Comparacion;
 import com.news.model.Feed;
 
@@ -52,19 +54,19 @@ public class LeerFeeds {
 				fileTxt.setFormatter(formatterTxt);
 				log.addHandler(fileTxt);
 				String archivo_prueba = null;
-//				File file = new File(
-//						"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\articles.rss");
-//				if (!file.exists()) {
-//					file.createNewFile();
-//				}
+				File file = new File(
+						"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\articles.rss");
+				if (!file.exists()) {
+					file.createNewFile();
+				}
 				
 				/* 1_ Leer desde el rss las noticias dependiendo de los periodicos que haya en la BBDD 
 				 * Tabla: NewsPaper_info
 				 */
 				
-//				ReadService read = new ReadService();
-//				read.readBdInsert();
-//				System.out.println("Insertados a BBDD");
+				ReadService read = new ReadService();
+				read.readBdInsert();
+				System.out.println("Insertados a BBDD");
 				return "Feeds Leidos con Exito";
 			}
 

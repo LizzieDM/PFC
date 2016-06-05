@@ -17,14 +17,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.news.database.DBconnection;
 import com.news.meaning.MeaningEntities;
 import com.news.model.Comparacion;
 import com.news.model.Feed;
+import com.news.levensthein.*;
 
-import de.linguatools.disco.DISCO;
+
 
 @Path("/CompararByTopics")
 public class ComparadorTopics {
@@ -34,7 +33,7 @@ public class ComparadorTopics {
 	static private FileHandler fileTxt;
 	static private SimpleFormatter formatterTxt;
 	ArrayList<String> conjuntoVacias = null;
-	static String discoDir = "C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\data\\es-general-20080720";
+//	static String discoDir = "C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\data\\es-general-20080720";
 
 	
 	@GET
@@ -87,7 +86,7 @@ public class ComparadorTopics {
 					textoTag = listaEntities.get(0);
 					if(listaEntities.size() > 1){
 						for(int j= 0; j < listaEntities.size(); j++){
-							textoTag += "," + listaEntities.get(j);
+							textoTag += "," + listaEntities.get(j).replaceAll("'", "''");
 						}
 					}
 				}
@@ -117,12 +116,14 @@ public class ComparadorTopics {
 						
 							strLimpio1 = limpiarBlancos(str1);
 							strLimpio2 = limpiarBlancos(str2);
-						
-							float valor = computeSoftLevenshteinDistance(strLimpio1, strLimpio2);
+							
+							levensthein comparador = new levensthein();
+							
+							float valor = comparador.computeSoftLevenshteinDistance(strLimpio1, strLimpio2);
 							conexionDB.insert_comparacion_entidades(noticia1.getId(), noticia2.getId(), Float.toString(valor), textoTag);
 							System.out.println("[DONE] Insertada comparacion");
 							System.out.println("Valor de la comparacion Soft " + valor);						
-							System.out.println("Valor de la comparacion Soft " + computeLevenshteinDistance(texto1, texto2));
+							System.out.println("Valor de la comparacion Soft " + comparador.computeLevenshteinDistance(texto1, texto2));
 						
 						}
 					}
@@ -177,6 +178,7 @@ public class ComparadorTopics {
 		archivo += "</feeds>";
 		time_end = System.currentTimeMillis();
 		System.out.println("La tarea ha tomado "+ ( time_end - time_start ) +" milisegundos");
+		conexionDB.closeConnection();
 		return archivo;
 	}
 	
@@ -199,6 +201,24 @@ public class ComparadorTopics {
 			description = description.replaceAll("\\b" + conjuntoVacias.get(i) + "\\b", "");
 			//System.out.println("Descripcion: " + description);
 		}
+		description = description.replaceAll("[\n\r]","");
+		description = description.replaceAll("\"","");
+		description = description.replaceAll("'","");
+		description = description.replaceAll("\\.","");
+		description = description.replaceAll(",","");
+		description = description.replaceAll("[\n]","");
+		description = description.replaceAll(":","");
+		description = description.replaceAll("\\(","");
+		description = description.replaceAll("\\)","");
+		description = description.replaceAll("\\[","");
+		description = description.replaceAll("\\]","");
+		description = description.replaceAll("-","");
+		description = description.replaceAll("\\{","");
+		description = description.replaceAll("\\}","");
+		description = description.replaceAll("¿","");
+		description = description.replaceAll("\\?","");
+		description = description.replaceAll("!","");
+		description = description.replaceAll("¡","");
 		
 		return description;
 				
@@ -213,7 +233,9 @@ public class ComparadorTopics {
 		try {
 			br = new BufferedReader(
 					new FileReader(
-							"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\resources\\vacias.txt"));
+							"C:\\Users\\ASUS\\Webservice\\PFC\\src\\resources\\vacias.txt"));
+//					new FileReader(
+//							"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\resources\\vacias.txt"));
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -235,158 +257,158 @@ public class ComparadorTopics {
 	
 	
 		
-		public static int computeLevenshteinDistance(String str1, String str2) {
-	        return computeLevenshteinDistance(str1.toCharArray(),
-	                                          str2.toCharArray());
-	    }
-		
-
-	    private static int computeLevenshteinDistance(char [] str1, char [] str2) {
-	        int [][]distance = new int[str1.length+1][str2.length+1];
-
-	        for(int i=0;i<=str1.length;i++)
-	        {
-	                distance[i][0]=i;
-	        }
-	        for(int j=0;j<=str2.length;j++)
-	        {
-	                distance[0][j]=j;
-	        }
-	        for(int i=1;i<=str1.length;i++)
-	        {
-	            for(int j=1;j<=str2.length;j++)
-	            { 
-	                  distance[i][j]= Minimum(distance[i-1][j]+1,
-	                                        distance[i][j-1]+1,
-	                                        distance[i-1][j-1]+
-	                                        ((str1[i-1]==str2[j-1])?0:1));
-	            }
-	        }
-	        return distance[str1.length][str2.length];
-	        
-	    }
+//		public static int computeLevenshteinDistance(String str1, String str2) {
+//	        return computeLevenshteinDistance(str1.toCharArray(),
+//	                                          str2.toCharArray());
+//	    }
+//		
+//
+//	    private static int computeLevenshteinDistance(char [] str1, char [] str2) {
+//	        int [][]distance = new int[str1.length+1][str2.length+1];
+//
+//	        for(int i=0;i<=str1.length;i++)
+//	        {
+//	                distance[i][0]=i;
+//	        }
+//	        for(int j=0;j<=str2.length;j++)
+//	        {
+//	                distance[0][j]=j;
+//	        }
+//	        for(int i=1;i<=str1.length;i++)
+//	        {
+//	            for(int j=1;j<=str2.length;j++)
+//	            { 
+//	                  distance[i][j]= Minimum(distance[i-1][j]+1,
+//	                                        distance[i][j-1]+1,
+//	                                        distance[i-1][j-1]+
+//	                                        ((str1[i-1]==str2[j-1])?0:1));
+//	            }
+//	        }
+//	        return distance[str1.length][str2.length];
+//	        
+//	    }
 
 	    
-	    private static int findIndex(ArrayList<String> str, String word ){
-	    	
-	    	for(int i=0;i<=str.size();i++){
-	    		if (str.get(i).equals(word) == true)
-	    			return i;
-	    	}
-	    			    	
-	    	return -1;
-	    }
-
-	    private static float computeSoftLevenshteinDistance(ArrayList<String> strA, ArrayList<String> strB) {
-	    	
-	    	DISCO disco = null;
-			try {
-				disco = new DISCO(discoDir, false);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-	        float [][]distance = new float[strA.size()+1][strB.size()+1];
-	        float costo;
-	        int []visitadosA = new int[strA.size()];
-	        int []visitadosB = new int[strB.size()];
-	        int k=0;
-	        
-	        String []T1 = new String[strA.size() * strB.size()];
-	        String [] T2 = new String[strA.size() * strB.size()];
-	        float [] T3 =  new float[strA.size() * strB.size()]; 
-	        float [][]sim =  new float[strA.size()+1][strB.size()+1];
-	        
-	        //Inicializaciï¿½n de los visitados
-	        for(int i=0;i < strA.size();i++){
-	        	visitadosA[i] = 1;
-	        	for(int j=1;j< strB.size();j++){
-	        		visitadosB[j] = 1;
-	        		T1[k] = strA.get(i);
-	        		T2[k] = strB.get(j);
-	        		try {
-	        			if (disco.secondOrderSimilarity(strA.get(i), strB.get(j)) != -1){
-	        				T3[k]  = disco.secondOrderSimilarity(strA.get(i), strB.get(j));
-	        			}else{
-	        				T3[k] = 0;
-	        			}
-	        			
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-	        		k+=1;
-	        	}
-	        }
-	        
-	        //Ordenamos tabla 
-	        for(int i=0;i< T3.length;i++){
-	        	if(T1[i] != null && T2[i] != null){
-	        		//System.out.println("Indice se visitadosA :"+ findIndex(strA, T1[i]) + "Indices de visitadosB:" + findIndex(strB, T2[i]));
-	        		if((visitadosA[findIndex(strA, T1[i])] == 1 ) && (visitadosB[findIndex(strB, T2[i])] == 1 )){
-	        			visitadosA[findIndex(strA, T1[i])] = 0;
-	        			visitadosB[findIndex(strB, T2[i])] = 1;
-	        			sim[findIndex(strA, T1[i])][findIndex(strB, T2[i])] = 1- T3[i];
-	        		}
-	        	}
-	        }
-	        
-	        for(int i=0;i<=strA.size();i++){
-	        	distance[i][0] = i;
-	        }
-	        for(int i=0;i<=strB.size();i++){
-	        	distance[0][i] = i;
-	        }
-	        for(int i=1;i< strA.size();i++){
-	            for(int j=1;j< strB.size();j++){
-	            	if (strA.get(i).equals(strB.get(j))){
-	            		costo = 0; 
-	            	}else{
-	            		costo = sim[i][j];
-	            	}
-	            	distance[i][j] = Minimum((distance[i-1][j]) + 1, (distance[i][j-1]) + 1, (distance[i-1][j-1]) + costo);
-	            }
-	        }
-	        
-	        float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
-	        // float resultado = distance[strA.size()-1][strB.size() -1];
-	        return resultado;
-	        
-	    }
-
-	    private static int Maximun(int a, int b){
-	    	if (a>b)
-	    		return a;
-	    	return b;
-	    }
-
-	    private static float Minimum(float a, float b, float c) {
-	    	  float mi;
-
-	    	    mi = a;
-	    	    if (b < mi) {
-	    	      mi = b;
-	    	    }
-	    	    if (c < mi) {
-	    	      mi = c;
-	    	    }
-	    	    return mi;
-	    }
-
-
-		private static int Minimum (int a, int b, int c) {
-	    	  int mi;
-
-	    	    mi = a;
-	    	    if (b < mi) {
-	    	      mi = b;
-	    	    }
-	    	    if (c < mi) {
-	    	      mi = c;
-	    	    }
-	    	    return mi;
-
-	    	  }
+//	    private static int findIndex(ArrayList<String> str, String word ){
+//	    	
+//	    	for(int i=0;i<=str.size();i++){
+//	    		if (str.get(i).equals(word) == true)
+//	    			return i;
+//	    	}
+//	    			    	
+//	    	return -1;
+//	    }
+//
+//	    private static float computeSoftLevenshteinDistance(ArrayList<String> strA, ArrayList<String> strB) {
+//	    	
+//	    	DISCO disco = null;
+//			try {
+//				disco = new DISCO(discoDir, false);
+//			} catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//	        float [][]distance = new float[strA.size()+1][strB.size()+1];
+//	        float costo;
+//	        int []visitadosA = new int[strA.size()];
+//	        int []visitadosB = new int[strB.size()];
+//	        int k=0;
+//	        
+//	        String []T1 = new String[strA.size() * strB.size()];
+//	        String [] T2 = new String[strA.size() * strB.size()];
+//	        float [] T3 =  new float[strA.size() * strB.size()]; 
+//	        float [][]sim =  new float[strA.size()+1][strB.size()+1];
+//	        
+//	        //Inicializaciï¿½n de los visitados
+//	        for(int i=0;i < strA.size();i++){
+//	        	visitadosA[i] = 1;
+//	        	for(int j=1;j< strB.size();j++){
+//	        		visitadosB[j] = 1;
+//	        		T1[k] = strA.get(i);
+//	        		T2[k] = strB.get(j);
+//	        		try {
+//	        			if (disco.secondOrderSimilarity(strA.get(i), strB.get(j)) != -1){
+//	        				T3[k]  = disco.secondOrderSimilarity(strA.get(i), strB.get(j));
+//	        			}else{
+//	        				T3[k] = 0;
+//	        			}
+//	        			
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//	        		k+=1;
+//	        	}
+//	        }
+//	        
+//	        //Ordenamos tabla 
+//	        for(int i=0;i< T3.length;i++){
+//	        	if(T1[i] != null && T2[i] != null){
+//	        		//System.out.println("Indice se visitadosA :"+ findIndex(strA, T1[i]) + "Indices de visitadosB:" + findIndex(strB, T2[i]));
+//	        		if((visitadosA[findIndex(strA, T1[i])] == 1 ) && (visitadosB[findIndex(strB, T2[i])] == 1 )){
+//	        			visitadosA[findIndex(strA, T1[i])] = 0;
+//	        			visitadosB[findIndex(strB, T2[i])] = 1;
+//	        			sim[findIndex(strA, T1[i])][findIndex(strB, T2[i])] = 1- T3[i];
+//	        		}
+//	        	}
+//	        }
+//	        
+//	        for(int i=0;i<=strA.size();i++){
+//	        	distance[i][0] = i;
+//	        }
+//	        for(int i=0;i<=strB.size();i++){
+//	        	distance[0][i] = i;
+//	        }
+//	        for(int i=1;i< strA.size();i++){
+//	            for(int j=1;j< strB.size();j++){
+//	            	if (strA.get(i).equals(strB.get(j))){
+//	            		costo = 0; 
+//	            	}else{
+//	            		costo = sim[i][j];
+//	            	}
+//	            	distance[i][j] = Minimum((distance[i-1][j]) + 1, (distance[i][j-1]) + 1, (distance[i-1][j-1]) + costo);
+//	            }
+//	        }
+//	        
+//	        float resultado = distance[strA.size()-1][strB.size() -1]/ Maximun(strA.size(), strB.size());
+//	        // float resultado = distance[strA.size()-1][strB.size() -1];
+//	        return resultado;
+//	        
+//	    }
+//
+//	    private static int Maximun(int a, int b){
+//	    	if (a>b)
+//	    		return a;
+//	    	return b;
+//	    }
+//
+//	    private static float Minimum(float a, float b, float c) {
+//	    	  float mi;
+//
+//	    	    mi = a;
+//	    	    if (b < mi) {
+//	    	      mi = b;
+//	    	    }
+//	    	    if (c < mi) {
+//	    	      mi = c;
+//	    	    }
+//	    	    return mi;
+//	    }
+//
+//
+//		private static int Minimum (int a, int b, int c) {
+//	    	  int mi;
+//
+//	    	    mi = a;
+//	    	    if (b < mi) {
+//	    	      mi = b;
+//	    	    }
+//	    	    if (c < mi) {
+//	    	      mi = c;
+//	    	    }
+//	    	    return mi;
+//
+//	    	  }
 
 
 	

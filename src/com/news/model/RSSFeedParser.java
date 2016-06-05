@@ -139,6 +139,12 @@ public class RSSFeedParser {
 		texto = texto.replaceAll("&quot;", "\"");
 		texto = texto.replaceAll("&ntilde;", "ñ");
 		texto = texto.replaceAll("&nbsp;", " ");
+		texto = texto.replaceAll("<em>", " ");
+		texto = texto.replaceAll("</em>", " ");
+		texto = texto.replaceAll("<p>", " ");
+		texto = texto.replaceAll("</p>", " ");
+		texto = texto.replaceAll("<a>", " ");
+		texto = texto.replaceAll("</a>", " ");
 		return texto;
 	}
 	

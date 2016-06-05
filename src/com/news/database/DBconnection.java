@@ -26,7 +26,8 @@ public class DBconnection {
 			.getName());
 	static private FileHandler fileTxt;
 	static private SimpleFormatter formatterTxt;
-
+	Connection conn = null;
+	
 	public void test_connection() throws InterruptedException {
 
 		System.out.println("-------- PostgreSQL "
@@ -43,10 +44,10 @@ public class DBconnection {
 
 		System.out.println("PostgreSQL JDBC Driver Registered!");
 
-		Connection connection = null;
+		conn = null;
 
 		try {
-			connection = DriverManager.getConnection(
+			conn = DriverManager.getConnection(
 					"jdbc:postgresql://localhost:5432/webservicedb",
 					"postgres", "omairapostgres");
 		} catch (SQLException e) {
@@ -55,7 +56,7 @@ public class DBconnection {
 			return;
 		}
 
-		if (connection != null) {
+		if (conn != null) {
 			System.out.println("You made it, take control your database now!");
 		} else {
 			System.out.println("Failed to make connection!");
@@ -70,23 +71,33 @@ public class DBconnection {
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		Connection connection = null;
+		conn = null;
 
 		try {
-			connection = DriverManager.getConnection(
+			conn = DriverManager.getConnection(
 					"jdbc:postgresql://localhost:5432/webservicedb",
 					"postgres", "omairapostgres");
 		} catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
 			e.printStackTrace();
-			return connection;
+			return conn;
 		}
-		return connection;
+		return conn;
 
+	}
+	
+	public void closeConnection (){
+		try{
+			conn.close();
+		}catch(Exception e) {
+			System.out.println("No se ha podido cerrar la conexión correctamente");
+			e.printStackTrace();
+			
+		}
 	}
 
 	public  List<NewsPaper> getNewsPapers() {
-		Connection conn = null;
+		
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<NewsPaper> newsPapers = new ArrayList<NewsPaper>();
@@ -127,7 +138,7 @@ public class DBconnection {
 	}
 	
 	public  String getNewsPapersDescription(String idNewsPaper) {
-		Connection conn = null;
+		
 		PreparedStatement query = null;
 		ResultSet result = null;
 		NewsPaper newsPaper = new NewsPaper();
@@ -176,7 +187,7 @@ public class DBconnection {
 		fileTxt.setFormatter(formatterTxt);
 		log.addHandler(fileTxt);
 		
-		  Connection conn = null;
+		  
 	      Statement stmt = null;
 	      try {
 	    	 conn = getConnection();
@@ -216,7 +227,6 @@ public class DBconnection {
 		fileTxt.setFormatter(formatterTxt);
 		log.addHandler(fileTxt);
 		
-		  Connection conn = null;
 	      Statement stmt = null;
 	      try {
 	    	 conn = getConnection();
@@ -250,7 +260,6 @@ public class DBconnection {
 		fileTxt.setFormatter(formatterTxt);
 		log.addHandler(fileTxt);
 		
-		  Connection conn = null;
 	      Statement stmt = null;
 	      try {
 	    	 conn = getConnection();
@@ -284,7 +293,6 @@ public class DBconnection {
 		fileTxt.setFormatter(formatterTxt);
 		log.addHandler(fileTxt);
 		
-		  Connection conn = null;
 	      Statement stmt = null;
 	      try {
 	    	 conn = getConnection();
@@ -308,12 +316,9 @@ public class DBconnection {
 	
 	public boolean existComparison(String idNoticia1, String idNoticia2){
 		try{
-			Connection con = null;
-			con = getConnection();
-			PreparedStatement pstat = con.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+			conn = getConnection();
+			PreparedStatement pstat = conn.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
 		 
-//	        pstat.set(parameterIndex, x)(1, idNoticia1);
-//	        pstat.setString(2, idNoticia2);
 	        ResultSet rs = pstat.executeQuery();
 	        int rowCount=0;
 
@@ -327,8 +332,6 @@ public class DBconnection {
 	        	con2 = getConnection();
 				PreparedStatement pstat2 = con2.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
 			 
-//		        pstat2.setString(1, idNoticia2);
-//		        pstat2.setString(2, idNoticia1);
 		        ResultSet rs2 = pstat2.executeQuery();
 		        int rowCount2=0;
 
@@ -339,11 +342,15 @@ public class DBconnection {
 		        }
 		
 		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	conn.close();
+		        	con2.close();
 		        	return false;
 		        }else{
+		        	conn.close();
+		        	con2.close();
 		        	return true;
 		        }
-		
+
 		}catch(Exception e) {
 			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 	         System.exit(0);
@@ -353,9 +360,9 @@ public class DBconnection {
 	
 	public boolean existComparisonDescripcion(String idNoticia1, String idNoticia2){
 		try{
-			Connection con = null;
-			con = getConnection();
-			PreparedStatement pstat = con.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+			
+			conn = getConnection();
+			PreparedStatement pstat = conn.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
 		 
 	        ResultSet rs = pstat.executeQuery();
 	        int rowCount=0;
@@ -380,8 +387,12 @@ public class DBconnection {
 		        }
 		
 		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	conn.close();
+		        	con2.close();
 		        	return false;
 		        }else{
+		        	conn.close();
+		        	con2.close();
 		        	return true;
 		        }
 		
@@ -394,9 +405,8 @@ public class DBconnection {
 	
 	public boolean existComparisonTitulos(String idNoticia1, String idNoticia2){
 		try{
-			Connection con = null;
-			con = getConnection();
-			PreparedStatement pstat = con.prepareStatement("Select idcomparacion from news_comparacion_titulos where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+			conn = getConnection();
+			PreparedStatement pstat = conn.prepareStatement("Select idcomparacion from news_comparacion_titulos where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
 		 
 	        ResultSet rs = pstat.executeQuery();
 	        int rowCount=0;
@@ -421,8 +431,12 @@ public class DBconnection {
 		        }
 		
 		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	conn.close();
+		        	con2.close();
 		        	return false;
 		        }else{
+		        	conn.close();
+		        	con2.close();
 		        	return true;
 		        }
 		
@@ -434,7 +448,6 @@ public class DBconnection {
 	}
 	
 	public List<Comparacion> getComparaciones(){
-		Connection conn = null;
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
@@ -478,7 +491,7 @@ public class DBconnection {
 	}
 	
 	public List<Comparacion> getComparacionesTitulos(){
-		Connection conn = null;
+	
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
@@ -522,7 +535,6 @@ public class DBconnection {
 	}
 	
 	public List<Comparacion> getComparacionesEntidades(String entidades){
-		Connection conn = null;
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
@@ -566,7 +578,6 @@ public class DBconnection {
 	}
 
 	public List<String> getEntidades(){
-		Connection conn = null;
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<String> listaEntidades = new ArrayList<String>();
@@ -607,8 +618,6 @@ public class DBconnection {
 	
 	public void UpdateTags(String idNoticia, String tags){
 		
-		
-		  Connection conn = null;
 	      Statement stmt = null;
 	      try {
 	    	 conn = getConnection();
@@ -646,7 +655,7 @@ public class DBconnection {
 	}
 	
 	public Feed getOneNew(String idNoticia){
-		Connection conn = null;
+		
 		PreparedStatement query = null;
 		ResultSet result = null;
 		Feed Noticia = null;
@@ -694,7 +703,7 @@ public class DBconnection {
 	}
 	
 	public  List<Feed> getNews(int periodico) {
-		Connection conn = null;
+
 		PreparedStatement query = null;
 		ResultSet result = null;
 		List<Feed> listNews = new ArrayList<Feed>();
