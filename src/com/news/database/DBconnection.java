@@ -17,6 +17,8 @@ import java.util.logging.SimpleFormatter;
 import com.news.model.Comparacion;
 import com.news.model.Feed;
 import com.news.model.NewsPaper;
+import com.news.model.NewsSemEval;
+import com.news.model.SemEvalText;
 import com.news.service.Servicio;
 
 
@@ -328,9 +330,9 @@ public class DBconnection {
 	            int typeID = rs.getInt(1);
 	        }
 	       
-	        	Connection con2 = null;
-	        	con2 = getConnection();
-				PreparedStatement pstat2 = con2.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+//	        	Connection con2 = null;
+//	        	con2 = getConnection();
+				PreparedStatement pstat2 = conn.prepareStatement("Select id from news_comparacion_entidades where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
 			 
 		        ResultSet rs2 = pstat2.executeQuery();
 		        int rowCount2=0;
@@ -343,11 +345,11 @@ public class DBconnection {
 		
 		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
 		        	conn.close();
-		        	con2.close();
+		        	//con2.close();
 		        	return false;
 		        }else{
 		        	conn.close();
-		        	con2.close();
+		        	//con2.close();
 		        	return true;
 		        }
 
@@ -373,9 +375,9 @@ public class DBconnection {
 	            int typeID = rs.getInt(1);
 	        }
 	       
-	        	Connection con2 = null;
-	        	con2 = getConnection();
-				PreparedStatement pstat2 = con2.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+//	        	Connection con2 = null;
+//	        	con2 = getConnection();
+				PreparedStatement pstat2 = conn.prepareStatement("Select idcomparacion from news_comparacion where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
 			 
 		        ResultSet rs2 = pstat2.executeQuery();
 		        int rowCount2=0;
@@ -388,11 +390,11 @@ public class DBconnection {
 		
 		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
 		        	conn.close();
-		        	con2.close();
+		        	//con2.close();
 		        	return false;
 		        }else{
 		        	conn.close();
-		        	con2.close();
+		        	//con2.close();
 		        	return true;
 		        }
 		
@@ -806,5 +808,393 @@ public class DBconnection {
 	private String parseQuotes(String texto){
 		return  texto.replaceAll("'", "''");	
 	}
+	
+	public  List<SemEvalText> getAllSemEval() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<SemEvalText> listNews = new ArrayList<SemEvalText>();
+		try {
+			conn = getConnection();
 
+			String sql = ("Select * from textos_semeval;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				SemEvalText semEval = new SemEvalText(result.getString(1),result.getString(2),result.getString(3),result.getString(4), result.getString(5), result.getString(6));
+				listNews.add(semEval);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+
+	public void insert_comparacion_semEval(String id, String string) {
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO comparaciones_semeval (idtexto1,comparacion) "
+	               + "VALUES ('" + id + "','" + string + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+		
+	}
+
+	public List<Comparacion> getComparacionesSemEval() {
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from comparaciones_semeval;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Comparacion comparacion = new Comparacion(result.getString(1),result.getString(2),result.getString(3));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+			
+				listaComparaciones.add(comparacion);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("Comparisons read successfully");
+		return listaComparaciones;		
+	}
+	
+	
+	public void UpdateSizeNews(String idNoticia, String size){
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         
+	         String sql = (" update news_info set size='"+ size +"'where id='"+ idNoticia +"';");
+	         
+	         stmt.executeUpdate(sql);
+	        
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+					
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News update successfully");
+		
+	}
+	
+	public void UpdateSizeSemEval(String id, String size, String size2){
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         
+	         String sql = (" update textos_semeval set size='"+ size +"'where id='"+ id +"';");
+	         
+	         stmt.executeUpdate(sql);
+	         
+	         String sql1 = (" update textos_semeval set size2='"+ size2 +"'where id='"+ id +"';");
+	        
+	         stmt.executeUpdate(sql1);
+	         
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+					
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News update successfully");
+		
+	}
+	
+	public void insert_comparacion_5entidades(String string, String string2, String string3, String tagsEntidades){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO news_comparacion_5entidades (idnoticia1,idnoticia2,comparacion,tagsentidades) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + string3 + "','" + tagsEntidades + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
+	public boolean existComparison5entidades(String idNoticia1, String idNoticia2){
+		try{
+			conn = getConnection();
+			PreparedStatement pstat = conn.prepareStatement("Select id from news_comparacion_5entidades where idnoticia1='"+idNoticia1+"' and idnoticia2='"+idNoticia2+"'");        
+		 
+	        ResultSet rs = pstat.executeQuery();
+	        int rowCount=0;
+
+	        while(rs.next())
+	        {
+	            rowCount++;
+	            int typeID = rs.getInt(1);
+	        }
+	       
+//	        	Connection con2 = null;
+//	        	con2 = getConnection();
+				PreparedStatement pstat2 = conn.prepareStatement("Select id from news_comparacion_5entidades where idnoticia1='"+idNoticia2+"' and idnoticia2='"+idNoticia1+"'");        
+			 
+		        ResultSet rs2 = pstat2.executeQuery();
+		        int rowCount2=0;
+
+		        while(rs2.next())
+		        {
+		            rowCount2++;
+		            int typeID = rs2.getInt(1);
+		        }
+		
+		        if(!(rowCount > 0 ) && !(rowCount2 > 0)){
+		        	conn.close();
+		        	//con2.close();
+		        	return false;
+		        }else{
+		        	conn.close();
+		        	//con2.close();
+		        	return true;
+		        }
+
+		}catch(Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+			return true;
+		}
+	}
+
+	public List<Comparacion> getComparaciones5Entidades(String entidades){
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<Comparacion> listaComparaciones = new ArrayList<Comparacion>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from news_comparacion_5entidades where tagsentidades='"+ entidades + "'order by comparacion ASC;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				Comparacion comparacion = new Comparacion(result.getString(2),result.getString(3),result.getString(5),result.getString(4));
+				System.out.print(result.getInt(1));
+				System.out.print(": ");
+				System.out.println(result.getString(2));
+				System.out.print(": ");
+				System.out.println(result.getString(3));
+			
+				listaComparaciones.add(comparacion);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("Comparisons read successfully");
+		return listaComparaciones;
+	}
+	
+	
+	public  List<NewsSemEval> getAllSemEvalNews() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<NewsSemEval> listNews = new ArrayList<NewsSemEval>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from textos_news_semeval;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				NewsSemEval semEval = new NewsSemEval(result.getString(1),result.getString(2),result.getString(3));
+				listNews.add(semEval);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+	
+	public void insert_news_comparacion_semEval(String id, String string) {
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO c_news_entidades_semeval (idtexto1,comparacion) "
+	               + "VALUES ('" + id + "','" + string + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+		
+	}
 }

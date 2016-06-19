@@ -50,9 +50,9 @@ public class MeaningEntities {
 			        	if(printInfoEntityConcept(response_node, "entity") != null){
 			        		entities.addAll(printInfoEntityConcept(response_node, "entity"));
 			        	}
-			        	if(printInfoEntityConcept(response_node, "concept") != null){
-			        		entities.addAll(printInfoEntityConcept(response_node, "concept"));
-			        	}
+//			        	if(printInfoEntityConcept(response_node, "concept") != null){
+//			        		entities.addAll(printInfoEntityConcept(response_node, "concept"));
+//			        	}
 			        	if(printInfoGeneral(response_node, "time_expression") != null){
 			        		entities.addAll(printInfoGeneral(response_node, "time_expression"));
 			        	}
@@ -62,9 +62,9 @@ public class MeaningEntities {
 			        	if(printInfoGeneral(response_node, "quantity_expression") != null){
 			        		entities.addAll(printInfoGeneral(response_node, "quantity_expression"));
 			        	}
-			        	if(printInfoGeneral(response_node, "other_expression") != null){
-			        		entities.addAll(printInfoGeneral(response_node, "other_expression"));
-			        	}
+//			        	if(printInfoGeneral(response_node, "other_expression") != null){
+//			        		entities.addAll(printInfoGeneral(response_node, "other_expression"));
+//			        	}
 			        }
 			        return entities;
 			      }catch (Exception e) {

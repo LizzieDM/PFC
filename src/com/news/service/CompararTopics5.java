@@ -25,8 +25,8 @@ import com.news.levensthein.*;
 
 
 
-@Path("/CompararByTopics")
-public class ComparadorTopics {
+@Path("/CompararByTopics5")
+public class CompararTopics5 {
 
 	private final static Logger log = Logger.getLogger(ComparadorTopics.class
 			.getName());
@@ -96,14 +96,14 @@ public class ComparadorTopics {
 			for(int j= 0; j < listAllNews.size(); j++){
 				Feed noticia2 = listAllNews.get(j);
 				if(noticia1.getId() != noticia2.getId()){
-					if(!conexionDB.existComparison(noticia1.getId(), noticia2.getId())){
+					if(!conexionDB.existComparison5entidades(noticia1.getId(), noticia2.getId())){
 						List<String> contieneEntidades = new ArrayList<String>();
 						for(int k= 0; k < listaEntities.size(); k++){
 							if(noticia2.getDescription().contains(listaEntities.get(k))){
 								contieneEntidades.add(listaEntities.get(k));
 							}
 						}
-						if(contieneEntidades.size() > 1){
+						if(contieneEntidades.size() > 5){
 							String texto1 =limpiarTextoVacias(noticia1.getDescription());
 							String texto2 =limpiarTextoVacias(noticia2.getDescription());
 							System.out.println("Texto1 sin vacias " + texto1);		
@@ -120,7 +120,7 @@ public class ComparadorTopics {
 							levensthein comparador = new levensthein();
 							
 							float valor = comparador.computeSoftLevenshteinDistance(strLimpio1, strLimpio2);
-							conexionDB.insert_comparacion_entidades(noticia1.getId(), noticia2.getId(), Float.toString(valor), limpiarTextoTags(textoTag));
+							conexionDB.insert_comparacion_5entidades(noticia1.getId(), noticia2.getId(), Float.toString(valor), limpiarTextoTags(textoTag));
 							System.out.println("[DONE] Insertada comparacion");
 							System.out.println("Valor de la comparacion Soft " + valor);						
 							System.out.println("Valor de la comparacion Soft " + comparador.computeLevenshteinDistance(texto1, texto2));
@@ -142,7 +142,7 @@ public class ComparadorTopics {
 		List<String> tagsEntidades = conexionDB.getEntidades();
 		for (int i = 0; i < tagsEntidades.size(); i++) {
 			
-			List<Comparacion> comparaciones = conexionDB.getComparacionesEntidades(tagsEntidades.get(i));
+			List<Comparacion> comparaciones = conexionDB.getComparaciones5Entidades(tagsEntidades.get(i));
 		
 			for (int j = 0; j < comparaciones.size(); j++) {
 				Feed noticia1 =conexionDB.getOneNew(comparaciones.get(j).getIdNoticia1());
