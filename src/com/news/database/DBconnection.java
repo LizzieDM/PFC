@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import com.news.model.Comparacion;
+import com.news.model.ContenidoPI;
 import com.news.model.Feed;
 import com.news.model.NewsPaper;
 import com.news.model.NewsSemEval;
@@ -1197,4 +1198,279 @@ public class DBconnection {
 	      }
 		
 	}
+	
+	public  List<ContenidoPI> getAllContenido() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<ContenidoPI> listNews = new ArrayList<ContenidoPI>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from contenidos_pi;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				ContenidoPI new_notice = new ContenidoPI(result.getString(1),result.getString(2),result.getString(2),"");
+//				System.out.print(result.getInt(1));
+//				System.out.print(": ");
+//				System.out.println(result.getString(2));
+//				System.out.print(": ");
+//				System.out.println(result.getString(3));
+//				System.out.print(": ");
+//				System.out.println(result.getString(4));
+//				System.out.print(": ");
+//				System.out.println(result.getString(5));
+//				System.out.print(": ");
+//				System.out.println(result.getString(6));
+//				System.out.print(": ");
+//				System.out.println(result.getString(9));
+				listNews.add(new_notice);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+	
+	public  List<ContenidoPI> getAllContenidoPI() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<ContenidoPI> listNews = new ArrayList<ContenidoPI>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from contenidos_pi;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				ContenidoPI new_notice = new ContenidoPI(result.getString(1),result.getString(2),result.getString(3),"");
+				listNews.add(new_notice);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+
+	public void UpdateTagsContenidoPI(String idNoticia, String tags){
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         
+	         String sql = (" update contenidos_pi set tags='"+ tags +"'where id='"+ idNoticia +"';");
+	         
+	         stmt.executeUpdate(sql);
+	        
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+					
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News update successfully");
+		
+	}
+
+	
+	public void insert_comparacion_contenidoPI(String string, String string2, String tagsEntidades, String string3){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO comparacion_contenidos_pi (idtexto1,idtexto2,tags,valor) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + tagsEntidades + "','" + string3 + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
+	
+	//All Titulos PI
+	
+	public  List<ContenidoPI> getAllTitulosPI() {
+		Connection conn = null;
+		PreparedStatement query = null;
+		ResultSet result = null;
+		List<ContenidoPI> listNews = new ArrayList<ContenidoPI>();
+		try {
+			conn = getConnection();
+
+			String sql = ("Select * from titulos_pi;");
+			query = conn.prepareStatement(sql);
+			result = query.executeQuery();
+			while (result.next()) {
+				ContenidoPI new_notice = new ContenidoPI(result.getString(1),result.getString(2),result.getString(3),"");
+				listNews.add(new_notice);
+			}
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (query != null) {
+					query.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News read successfully");
+		return listNews;
+	}
+
+	public void UpdateTagsTitulosPI(String idNoticia, String tags){
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         
+	         String sql = (" update titulos_pi set tags='"+ tags +"'where id='"+ idNoticia +"';");
+	         
+	         stmt.executeUpdate(sql);
+	        
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+					
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		} finally {
+
+			try {
+
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				Logger lgr = Logger.getLogger(DBconnection.class.getName());
+				lgr.log(Level.WARNING, ex.getMessage(), ex);
+			}
+		}
+		System.out.println("News update successfully");
+		
+	}
+
+	
+	public void insert_comparacion_titulosPI(String string, String string2, String tagsEntidades, String string3){
+		try {
+			fileTxt = new FileHandler(
+					"C:\\Users\\ASUS\\Webservice\\com.webservice.newsapp\\documents\\servicio.log");
+		} catch (SecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		log.addHandler(fileTxt);
+		
+	      Statement stmt = null;
+	      try {
+	    	 conn = getConnection();
+	         conn.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+
+	         stmt = conn.createStatement();
+	         String sql = "INSERT INTO compaciones_titulos_pi (idtexto1,idtexto2,tags,valor) "
+	               + "VALUES ('" + string + "','" + string2 + "','" + tagsEntidades + "','" + string3 + "');";
+	         
+	         stmt.executeUpdate(sql);
+	         //log.info("[Sentencia]" + sql);
+	         stmt.close();
+	         conn.commit();
+	         conn.close();
+	      } catch (Exception e) {
+	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.exit(0);
+	      }
+	}
+	
 }

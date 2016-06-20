@@ -65,6 +65,10 @@ public class MeaningEntities {
 //			        	if(printInfoGeneral(response_node, "other_expression") != null){
 //			        		entities.addAll(printInfoGeneral(response_node, "other_expression"));
 //			        	}
+			        	
+			        	if(printInfoGeneral(response_node, "relation_list") != null){
+			        		entities.addAll(printInfoGeneral(response_node, "relation_list"));
+			        	}
 			        }
 			        return entities;
 			      }catch (Exception e) {
